@@ -137,9 +137,9 @@ const PAGE = `<!doctype html>
     max-width:100%; max-height:calc(100vh - 200px); display:block;
     border:1px solid var(--rule); box-shadow:6px 6px 0 var(--rule); background:#fff;
   }
-  /* konten di tengah (max-w-7xl), kolom card menempel kanan */
-  .md-wrap { display:grid; grid-template-columns:minmax(24px,1fr) minmax(0,1280px) minmax(316px,1fr); align-items:start; }
-  .md-wrap .md-render { grid-column:2; width:100%; max-width:1280px; margin:0 auto; }
+  /* konten di tengah (max-w-5xl), kolom card menempel kanan */
+  .md-wrap { display:grid; grid-template-columns:minmax(24px,1fr) minmax(0,1024px) minmax(316px,1fr); align-items:start; }
+  .md-wrap .md-render { grid-column:2; width:100%; max-width:1024px; margin:0 auto; }
   .side-col {
     grid-column:3; justify-self:end; position:sticky; top:24px;
     width:260px; margin:48px 28px 0 24px;
