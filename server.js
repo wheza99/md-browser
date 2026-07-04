@@ -83,6 +83,11 @@ const PAGE = `<!doctype html>
     font:10.5px "IBM Plex Mono",monospace; color:var(--ink-faint);
     letter-spacing:.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;
   }
+  #tabstats {
+    font:11px "IBM Plex Mono",monospace; color:var(--ink-faint);
+    letter-spacing:.08em; text-transform:uppercase; white-space:nowrap;
+  }
+  #tabstats b { color:var(--ink); font-weight:500; }
   #mdtoggle {
     font:11px "IBM Plex Mono",monospace; color:var(--ink-soft); cursor:pointer;
     text-transform:uppercase; letter-spacing:.12em; user-select:none;
@@ -200,7 +205,7 @@ const PAGE = `<!doctype html>
 <div id="drag"></div>
 <div id="main">
   <div id="tab" hidden>
-    <span id="tabname"></span><span id="tabpath"></span><span id="mdtoggle" hidden></span>
+    <span id="tabname"></span><span id="tabpath"></span><span id="tabstats" hidden></span><span id="mdtoggle" hidden></span>
   </div>
   <div id="view">
     <div id="empty"><div class="big"><b>the reading</b> room</div><div class="hint">pilih file di panel kiri</div></div>
@@ -263,6 +268,7 @@ async function openFile(full, name) {
       tabname.textContent = name;
       tabpath.textContent = full;
       mdtoggle.hidden = true;
+      tabstats.hidden = true;
       view.innerHTML = '<div class="img-view"><img src="/api/raw?path=' + encodeURIComponent(full) + '"></div>';
       return;
     }
@@ -273,6 +279,9 @@ async function openFile(full, name) {
     tabpath.textContent = full;
     const isMd = /\\.(md|markdown)$/i.test(name);
     mdtoggle.hidden = !isMd;
+    tabstats.hidden = isMd; // md sudah punya card stats sendiri
+    if (!isMd) tabstats.innerHTML = '<b>' + curText.split('\\n').length.toLocaleString() + '</b> lines &middot; <b>'
+      + curText.length.toLocaleString() + '</b> chars &middot; <b>' + countTokens(curText) + '</b> tokens';
     render(isMd && mdMode);
   } catch (e) { view.innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
 }
