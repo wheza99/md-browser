@@ -45,9 +45,9 @@ const PAGE = `<!doctype html>
     border-bottom:1px solid var(--rule);
   }
   #side .hdr a:hover { color:var(--accent); border-color:var(--accent); }
-  #tabs { display:flex; border-bottom:1px solid var(--rule); }
+  #tabs { display:flex; border-bottom:1px solid var(--rule); height:36px; flex-shrink:0; }
   .stab {
-    flex:1; text-align:center; padding:9px 0 8px; cursor:pointer; user-select:none;
+    flex:1; text-align:center; line-height:34px; cursor:pointer; user-select:none;
     font:11px "IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.14em;
     color:var(--ink-faint); border-bottom:2px solid transparent; margin-bottom:-1px;
   }
@@ -84,7 +84,8 @@ const PAGE = `<!doctype html>
     letter-spacing:.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;
   }
   .stats-line {
-    padding:16px 24px 0; font:11px "IBM Plex Mono",monospace; color:var(--ink-faint);
+    height:36px; line-height:35px; padding:0 24px; border-bottom:1px solid var(--rule);
+    font:11px/35px "IBM Plex Mono",monospace; color:var(--ink-faint);
     letter-spacing:.08em; text-transform:uppercase;
   }
   .stats-line b { color:var(--ink); font-weight:500; }
