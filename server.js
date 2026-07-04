@@ -137,10 +137,12 @@ const PAGE = `<!doctype html>
     max-width:100%; max-height:calc(100vh - 200px); display:block;
     border:1px solid var(--rule); box-shadow:6px 6px 0 var(--rule); background:#fff;
   }
-  .md-wrap { display:flex; align-items:flex-start; gap:8px; }
-  .md-wrap .md-render { flex:1; min-width:0; }
+  /* konten di tengah (max-w-7xl), kolom card menempel kanan */
+  .md-wrap { display:grid; grid-template-columns:minmax(24px,1fr) minmax(0,1280px) minmax(316px,1fr); align-items:start; }
+  .md-wrap .md-render { grid-column:2; width:100%; max-width:1280px; margin:0 auto; }
   .side-col {
-    position:sticky; top:24px; width:260px; flex-shrink:0; margin:48px 28px 0 0;
+    grid-column:3; justify-self:end; position:sticky; top:24px;
+    width:260px; margin:48px 28px 0 24px;
     display:flex; flex-direction:column; gap:16px;
   }
   .meta-card {
@@ -161,7 +163,10 @@ const PAGE = `<!doctype html>
   .meta-card dt { color:var(--ink-faint); text-transform:uppercase; letter-spacing:.08em; font-size:10px; margin-top:8px; }
   .meta-card dt:first-child { margin-top:0; }
   .meta-card dd { margin:2px 0 0; color:var(--ink); white-space:pre-wrap; word-break:break-word; max-height:130px; overflow:auto; }
-  @media (max-width:900px) { .md-wrap { flex-direction:column-reverse; } .side-col { position:static; width:auto; margin:24px 28px 0 28px; } }
+  @media (max-width:900px) {
+    .md-wrap { display:flex; flex-direction:column-reverse; align-items:stretch; }
+    .side-col { position:static; width:auto; margin:24px 28px 0 28px; }
+  }
 </style>
 <div id="side">
   <div class="hdr"><span class="title">md&#8202;browser</span><a title="ganti folder root" onclick="pickRoot()">ganti</a></div>
