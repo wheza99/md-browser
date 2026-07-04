@@ -1,0 +1,11 @@
+services:
+  md-browser:
+    build: .
+    container_name: md-browser
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3456:3456"   # localhost-only, tidak terekspos ke jaringan
+    environment:
+      - HOME=/host
+    volumes:
+      - "C:/Users/User Mode:/host:ro"   # read-only: viewer tidak bisa mengubah file
