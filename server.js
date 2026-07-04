@@ -47,12 +47,12 @@ const PAGE = `<!doctype html>
   #side .hdr a:hover { color:var(--accent); border-color:var(--accent); }
   #tabs { display:flex; border-bottom:1px solid var(--rule); height:36px; flex-shrink:0; }
   .stab {
-    flex:1; text-align:center; line-height:34px; cursor:pointer; user-select:none;
-    font:11px "IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.14em;
-    color:var(--ink-faint); border-bottom:2px solid transparent; margin-bottom:-1px;
+    flex:1; text-align:center; cursor:pointer; user-select:none;
+    font:11px/35px "IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.14em;
+    color:var(--ink-faint);
   }
   .stab:hover { color:var(--ink); }
-  .stab.on { color:var(--accent); border-bottom-color:var(--accent); }
+  .stab.on { color:var(--accent); box-shadow:inset 0 -2px var(--accent); }
   #tree { overflow:auto; flex:1; padding:10px 0 24px; font:12.5px/1.5 "IBM Plex Mono",monospace; }
   #tree::-webkit-scrollbar, #view::-webkit-scrollbar { width:10px; }
   #tree::-webkit-scrollbar-thumb, #view::-webkit-scrollbar-thumb {
