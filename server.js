@@ -132,6 +132,27 @@ const PAGE = `<!doctype html>
   .md-render table th { background:var(--code-bg); font-weight:600; }
   .md-render hr { border:none; border-top:1px solid var(--rule); margin:2.5em 0; }
   .err { color:var(--accent); padding:28px; font:13px "IBM Plex Mono",monospace; }
+  .code-wrap { position:relative; margin:1em 0; }
+  .code-wrap pre { margin:0; }
+  .copy-btn {
+    position:absolute; top:8px; right:8px; display:flex; align-items:center; gap:5px;
+    background:var(--paper); border:1px solid var(--rule); color:var(--ink-soft);
+    cursor:pointer; padding:4px 8px; font:10px "IBM Plex Mono",monospace;
+    text-transform:uppercase; letter-spacing:.1em; opacity:0; transition:opacity .15s;
+  }
+  .code-wrap:hover .copy-btn { opacity:1; }
+  .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+  .copy-btn.ok { color:var(--accent); border-color:var(--accent); opacity:1; }
+  .file-tree {
+    background:var(--code-bg); border:1px solid var(--rule); padding:16px 20px;
+    font:12.5px/2 "IBM Plex Mono",monospace; overflow:auto;
+  }
+  .ft-kids { border-left:1px solid var(--rule); margin-left:7px; padding-left:16px; }
+  .ft-row { display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .ft-row svg { flex-shrink:0; }
+  .ft-name { color:var(--ink-soft); }
+  .ft-name.dir { color:var(--ink); font-weight:500; }
+  .ft-cmt { color:var(--ink-faint); margin-left:12px; font-size:11px; font-style:italic; }
   .img-view { padding:48px; animation:rise .4s ease both; }
   .img-view img {
     max-width:100%; max-height:calc(100vh - 200px); display:block;
@@ -268,6 +289,61 @@ function splitFrontmatter(text) {
   }
   return { body: text.slice(m[0].length), meta: meta.length ? meta : null };
 }
+const ICON_COPY = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9"/><path d="M11 5V2H2v9h3"/></svg>';
+const ICON_DIR = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="var(--accent)" stroke-width="1.3"><path d="M1.5 3.5h5l1.5 2h6.5v7h-13z"/></svg>';
+const ICON_FILE = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="var(--ink-faint)" stroke-width="1.3"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M9.5 1.5v3h3"/></svg>';
+// blok \`\`\` berisi ├──/└── di-render sebagai file tree; sisanya dapat tombol copy
+function enhanceCode() {
+  view.querySelectorAll('.md-render pre').forEach(pre => {
+    const text = pre.textContent.replace(/\\n$/, '');
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    if (/^\\s*(?:[│|]\\s*)*[├└]──/m.test(text)) { wrap.appendChild(buildTree(text)); pre.remove(); }
+    else wrap.appendChild(pre);
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = ICON_COPY + 'copy';
+    btn.onclick = () => navigator.clipboard.writeText(text).then(() => {
+      btn.classList.add('ok'); btn.innerHTML = ICON_COPY + 'copied';
+      setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = ICON_COPY + 'copy'; }, 1500);
+    });
+    wrap.appendChild(btn);
+  });
+}
+// ponytail: parser tree naif — depth dari posisi ├/└ dibagi 4; komentar (# atau //) dipisah
+function buildTree(text) {
+  const rows = [];
+  for (const line of text.split('\\n')) {
+    if (!line.trim()) continue;
+    const idx = line.search(/[├└]/);
+    let depth, rest;
+    if (idx >= 0) { depth = Math.round(idx / 4) + 1; rest = line.slice(idx).replace(/^[├└]──\\s?/, ''); }
+    else { depth = Math.round(line.match(/^\\s*/)[0].length / 4); rest = line.trim(); }
+    const m = rest.match(/^(.*?)\\s*((?:#|\\/\\/).*)?$/);
+    rows.push({ depth, name: (m && m[1]) || rest, cmt: (m && m[2]) || '' });
+  }
+  const rootEl = document.createElement('div');
+  rootEl.className = 'file-tree';
+  const stack = [rootEl];
+  rows.forEach((r, i) => {
+    const depth = Math.min(r.depth, stack.length - 1);
+    const isDir = /[\\\\/]$/.test(r.name) || (rows[i + 1] && rows[i + 1].depth > r.depth);
+    const row = document.createElement('div');
+    row.className = 'ft-row';
+    row.innerHTML = (isDir ? ICON_DIR : ICON_FILE)
+      + '<span class="ft-name' + (isDir ? ' dir' : '') + '">' + esc(r.name) + '</span>'
+      + (r.cmt ? '<span class="ft-cmt">' + esc(r.cmt) + '</span>' : '');
+    stack[depth].appendChild(row);
+    const kids = document.createElement('div');
+    kids.className = 'ft-kids';
+    stack[depth].appendChild(kids);
+    stack.length = depth + 1;
+    stack.push(kids);
+  });
+  rootEl.querySelectorAll('.ft-kids:empty').forEach(k => k.remove());
+  return rootEl;
+}
 function countTokens(text) {
   // gpt-tokenizer o200k_base BPE; fallback ke estimasi kalau CDN gagal load
   if (typeof GPTTokenizer_o200k_base !== 'undefined')
@@ -289,6 +365,7 @@ function render(asMd) {
       + '<div class="stat"><div class="num">' + countTokens(curText) + '</div><div class="lbl">tokens</div></div>'
       + '</div></aside></div>';
     view.innerHTML = '<div class="md-wrap">' + html + '</div>';
+    enhanceCode();
     mdtoggle.textContent = 'source';
   } else {
     const rows = curText.split('\\n').map((l, i) =>
